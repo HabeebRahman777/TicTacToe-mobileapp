@@ -60,17 +60,43 @@ function initSocket(io) {
       if (players[roomId]?.length < 2) {
         socket.join(roomId);
         players[roomId].push(socket.id);
-        io.to(roomId).emit('startGame', players[roomId]);
-      } else {
-        socket.emit('roomFull');
+        io.to(roomId).emit('startGame', {
+          roomId,
+          players: players[roomId]
+        });
+      } else if(players[roomId]?.length === 2) {
+        socket.emit('roomFull', { message: 'room full' });
+      }else{
+        socket.emit('roomFull', { message: 'room is not available' });
       }
     });
+
 
     socket.on('makeMove', ({ roomId, board, currentTurn }) => {      
       socket.to(roomId).emit('moveMade', { board, currentTurn });
     });
 
+    socket.on('cancelMatch', ({ roomId }) => {
+      console.log(`Player ${socket.id} canceled match in room ${roomId}`);
+
+      // Remove from waiting queue
+      waitingQueue = waitingQueue.filter(s => s.id !== socket.id);
+
+      if (players[roomId]) {
+        // Remove the player from the room
+        players[roomId] = players[roomId].filter(id => id !== socket.id);
+
+        // If no players left OR only one, delete the room
+        if (players[roomId].length < 2) {
+          delete players[roomId];
+        }
+      }
+      socket.leave(roomId);
+    });
+
+
   });
+
 }
 
 export default initSocket 
