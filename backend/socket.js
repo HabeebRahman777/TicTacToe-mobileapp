@@ -8,11 +8,11 @@ function initSocket(io) {
   io.on('connection', socket => {
     console.log('User connected:', socket.id);
 
-    socket.on('findMatch', () => {
+    socket.on('findMatch', ({username}) => {
       console.log("one player is finding match");
       console.log(socket.id);
       
-      
+      socket.data.username = username;
       waitingQueue.push(socket);
 
       if (waitingQueue.length >= 2) {
@@ -27,7 +27,11 @@ function initSocket(io) {
 
         io.to(roomId).emit('startGame', {
           roomId,
-          players: [player1.id, player2.id]
+          players: [player1.id, player2.id],
+          usernames:{
+            [player1.id]: player1.data.username,
+            [player2.id]: player2.data.username
+          }
         });
       } else {
         socket.emit('waitingForOpponent');
@@ -38,10 +42,8 @@ function initSocket(io) {
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.id);
 
-      // Clean waitingQueue
       waitingQueue = waitingQueue.filter(s => s.id !== socket.id);
 
-      // Clean players map
       for (const room in players) {
         players[room] = players[room].filter(id => id !== socket.id);
         if (players[room].length === 0) delete players[room];

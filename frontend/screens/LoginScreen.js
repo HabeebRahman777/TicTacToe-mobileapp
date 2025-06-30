@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import {instance} from '../utils/api';
-import { storeToken } from '../utils/auth';
+import { storeToken,storeUser } from '../utils/auth';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -13,6 +13,8 @@ export default function LoginScreen({ navigation }) {
       const res = await instance.post('auth/login', { email, password });
       
       await storeToken(res.data.token);
+      await storeUser(res.data.user)
+      
       navigation.replace('Lobby');
 
     } catch (err) {

@@ -1,23 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { View, Button, Text, StyleSheet, ActivityIndicator, TextInput, Alert } from 'react-native';
 import socket from '../utils/socket';
+import { getUser } from '../utils/auth';
+
 
 export default function LobbyScreen({ navigation }) {
   const [isWaiting, setIsWaiting] = useState(false);
   const [showRoomInput, setShowRoomInput] = useState(false);
   const [roomId, setRoomId] = useState('');
   const [createdRoom, setCreatedRoom] = useState('');
+  const [username, setUsername] = useState('');
+
 
   useEffect(() => {
+    const fetchUser = async () => {
+      const storedUser = await getUser();
+      setUsername(storedUser.username); 
+    };
+
+    fetchUser();
+    
     socket.connect();
 
     socket.on('waitingForOpponent', () => {
       setIsWaiting(true);
     });
 
-    socket.on('startGame', ({ roomId, players }) => {
+    socket.on('startGame', ({ roomId, players,usernames }) => {
       setIsWaiting(false);
-      navigation.navigate('Game', { roomId, players, mySocketId: socket.id });
+      navigation.navigate('Game', { roomId, players,usernames, mySocketId: socket.id });
     });
 
     socket.on('roomCreated', (roomId) => {
@@ -39,13 +50,13 @@ export default function LobbyScreen({ navigation }) {
   }, []);
 
   const handleCancelMatch = () => {
-    socket.emit('cancelMatch', { roomId }); // Optional: let backend know to remove from queue
+    socket.emit('cancelMatch', { roomId }); 
     setIsWaiting(false);
-    navigation.goBack(); // Or navigate to a specific screen
+    navigation.goBack(); 
   };
 
   const handleFindMatch = () => {
-    socket.emit('findMatch');
+    socket.emit('findMatch', { username });
     setIsWaiting(true);
   };
 
@@ -63,6 +74,12 @@ export default function LobbyScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tic Tac Toe Lobby</Text>
+
+      {!username?
+      <Text style={styles.userText}>Loading... {username}!</Text>
+      :
+      <Text style={styles.userText}>Welcome, {username}!</Text>
+      }
 
       {isWaiting ? (
         <>
@@ -142,5 +159,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
     width: '100%',
     textAlign: 'center',
+  },
+  userText:{
+    marginTop:3,
+    color:'#345',
   },
 });

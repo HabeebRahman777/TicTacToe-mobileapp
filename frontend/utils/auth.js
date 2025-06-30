@@ -11,3 +11,13 @@ export const getToken = async () => {
 export const clearToken = async () => {
   await AsyncStorage.removeItem('auth_token');
 };
+
+export const storeUser = async(user) => {
+  await AsyncStorage.setItem('authUser', JSON.stringify(user)); 
+};
+
+
+export const getUser = async () => {
+  const user = await AsyncStorage.getItem('authUser');
+  return JSON.parse(user);
+};

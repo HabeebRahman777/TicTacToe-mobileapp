@@ -3,7 +3,10 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert,Button } from 'react-na
 import socket from '../utils/socket';
 
 export default function GameScreen({ route, navigation }) {
-  const { roomId, players, mySocketId } = route.params;
+  const { roomId, players,usernames, mySocketId } = route.params;
+  const myName = usernames[mySocketId];
+  const opponentId = players.find(id => id !== mySocketId);
+  const opponentName = usernames[opponentId];
 
   const [board, setBoard] = useState(Array(9).fill(null));
   const [isMyTurn, setIsMyTurn] = useState(false);
@@ -93,6 +96,9 @@ const checkGameStatus = (b) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tic Tac Toe</Text>
+      <Text style={styles.nameText}>
+        {myName} vs {opponentName}
+      </Text>
       <Text style={styles.turn}>
         {gameOver ? 'Game Finished' : isMyTurn ? "Your Turn" : "Opponent's Turn"}
       </Text>

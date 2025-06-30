@@ -4,9 +4,9 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-  "start": "node server.js",
-  "dev": "nodemon server.js"
-},
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -18,7 +18,8 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.1",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "tictacapp": "file:.."
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
